@@ -142,7 +142,7 @@ namespace diff {
 		
 		
 		// Send email.
-		/*
+		
 		if (not send_email(smtp, config.get_email_metadata(), report)) {
 			log::error("Main: Failed to send report email."sv);
 			if (not delete_file(savedata_path)) {
@@ -155,7 +155,7 @@ namespace diff {
 		}
 		log::info("Main: Sent report email."sv);
 		//*/
-		log::info("Main: Skipped sending email."sv);
+		//log::info("Main: Skipped sending email."sv);
 		
 		
 		if (not delete_file(old_savedata_path)) {
