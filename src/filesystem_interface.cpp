@@ -7,7 +7,7 @@ namespace diff {
 	
 	using namespace std::filesystem;
 	
-	std::optional<u8string> read_from_file(const path& file_path) noexcept {
+	std::optional<diff::u8string> read_from_file(const path& file_path) noexcept {
 		try {
 			std::ifstream ifs{ file_path, std::ios_base::binary | std::ios_base::ate };
 			if (not ifs.is_open()) {
@@ -22,7 +22,7 @@ namespace diff {
 				return std::nullopt;
 			}
 			
-			u8string str{};
+			diff::u8string str{};
 			str.resize(filesize);
 			
 			if (not ifs.read(reinterpret_cast<char*>(str.data()), filesize)) {
@@ -136,7 +136,7 @@ namespace diff {
 				return std::nullopt;
 			}
 			
-			u8string str{};
+			diff::u8string str{};
 			str.resize(filesize);
 			
 			if (not ifs.read(reinterpret_cast<char*>(str.data()), filesize)) {
@@ -154,9 +154,9 @@ namespace diff {
 	}
 
 
-	std::optional<std::vector<file>> get_files_recursive(const configuration& filter) noexcept {
+	std::optional<diff::vector<file>> get_files_recursive(const configuration& filter) noexcept {
 		try {
-			std::vector<file> ret{};
+			diff::vector<file> ret{};
 			ret.reserve(500);
 			
 			const path& root{ filter.get_root() };

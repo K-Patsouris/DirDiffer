@@ -7,7 +7,7 @@
 namespace diff::winapi {
 	
 	
-	wstring error_string(DWORD error_code) {
+	diff::wstring error_string(DWORD error_code) {
 		LPWSTR buf{};
 		if (0 == FormatMessageW(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -18,10 +18,12 @@ namespace diff::winapi {
 			0,
 			nullptr
 		)) {
-			return L"error_string "s + std::to_wstring(error_code) + L" -> " + std::to_wstring(GetLastError());
+			diff::wstring ret{ L"error_string " };
+			ret += std::to_wstring(error_code) + L" -> " + std::to_wstring(GetLastError());
+			return ret;
 		}
 		else {
-			wstring ret{ buf };
+			diff::wstring ret{ buf };
 			LocalFree(buf);
 			ret += L'(';
 			ret += std::to_wstring(error_code);
@@ -30,7 +32,7 @@ namespace diff::winapi {
 		}
 	}
 
-	std::optional<u8string> wstring_to_utf8(const wstring& wstr) noexcept {
+	std::optional<diff::u8string> wstring_to_utf8(const diff::wstring& wstr) noexcept {
 		/*
 		int WideCharToMultiByte(
 		  [in]            UINT                               CodePage,
@@ -45,7 +47,7 @@ namespace diff::winapi {
 		*/
 		
 		if (wstr.empty()) {
-			return u8string{};
+			return diff::u8string{};
 		}
 		
 		auto last_error_string = []() {
@@ -75,7 +77,7 @@ namespace diff::winapi {
 			return std::nullopt;
 		}
 		
-		u8string ret{};
+		diff::u8string ret{};
 		
 		try {
 			ret.resize(static_cast<std::size_t>(res));
@@ -105,7 +107,7 @@ namespace diff::winapi {
 		return ret;
 	}
 
-	std::optional<u8string> get_owner(const std::filesystem::path& full_path) {
+	std::optional<diff::u8string> get_owner(const std::filesystem::path& full_path) {
 		enum : SECURITY_INFORMATION {
 			OWNER = OWNER_SECURITY_INFORMATION,
 			GROUP = GROUP_SECURITY_INFORMATION,
@@ -131,7 +133,7 @@ namespace diff::winapi {
 			return std::nullopt; // Failed for whatever reason.
 		}
 
-		wstring wide{ owner_trustee->ptstrName };
+		diff::wstring wide{ owner_trustee->ptstrName };
 
 		LocalFree(owner_trustee);
 		LocalFree(pdesc);

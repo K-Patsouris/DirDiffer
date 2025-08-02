@@ -5,10 +5,8 @@
 
 namespace diff {
 	
-	using std::vector;
-	
 	// static_assert(false, "lookup template parsing needs rewrite");
-	std::optional<configuration> configuration::parse_file_contents(const u8string& contents) noexcept {
+	std::optional<configuration> configuration::parse_file_contents(const diff::u8string& contents) noexcept {
 		
 		struct line {
 			enum value_of : u32 {
@@ -26,20 +24,20 @@ namespace diff {
 				invalid
 			};
 			
-			u8string str{};
+			diff::u8string str{};
 			value_of category{};
 			u32 source_line{};
 		};
 		
-		vector<line> lines = [](const u8string& str) {
+		diff::vector<line> lines = [](const diff::u8string& str) {
 			struct str_and_source_line {
-				u8string str{};
+				diff::u8string str{};
 				u32 source_line{};
 			};
 			
-			vector<str_and_source_line> raw_lines{ [](const u8string& str) {
+			diff::vector<str_and_source_line> raw_lines{ [](const diff::u8string& str) {
 				auto raw_lines = split(str, u8'\n');											// Split on Unix newline char.
-				vector<str_and_source_line> ret{};
+				diff::vector<str_and_source_line> ret{};
 				ret.reserve(raw_lines.size());
 				for (std::size_t i = 0; i < raw_lines.size(); ++i) {
 					trim(raw_lines[i]);
@@ -59,7 +57,7 @@ namespace diff {
 																and val.str[0] == u8'/'
 																and val.str[1] == u8'/'; });	// Remove all comments (not using ini comment syntax because ';' is a valid path character).
 			
-			vector<line> ret{};
+			diff::vector<line> ret{};
 			
 			line::value_of current_category = line::none; // Start from invalid, to properly mark values that come at the start under no category.
 			
@@ -384,13 +382,13 @@ namespace diff {
 		return false;
 	}
 
-	u8string configuration::dump() const {
-		u8string ret{ u8"Configuration dump:\n" };
+	diff::u8string configuration::dump() const {
+		diff::u8string ret{ u8"Configuration dump:\n" };
 
 		ret += u8"\tRoot: <" + root.u8string() + u8">\n";
 
-		const string asd = std::to_string(min_depth);
-		u8string u8asd{};
+		const std::string asd = std::to_string(min_depth);
+		diff::u8string u8asd{};
 		u8asd.resize(asd.length());
 		std::memcpy(u8asd.data(), asd.c_str(), asd.length());
 

@@ -6,6 +6,6 @@
 
 namespace diff::winapi {
 
-	std::optional<u8string> get_owner(const std::filesystem::path& full_path);
+	std::optional<diff::u8string> get_owner(const std::filesystem::path& full_path);
 
 }

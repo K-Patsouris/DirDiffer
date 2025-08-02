@@ -6,12 +6,12 @@
 namespace diff {
 
 	// Coverts input to lowercase.
-	void make_lowercase(wstring& str) noexcept {
+	void make_lowercase(diff::wstring& str) noexcept {
 		for (auto& wc : str) {
 			wc = std::towlower(wc);
 		}
 	}
-	void make_lowercase(u8string& str) noexcept {
+	void make_lowercase(diff::u8string& str) noexcept {
 		for (auto& c : str) {
 			c = static_cast<char8_t>(std::tolower(static_cast<unsigned char>(c)));
 		}
@@ -55,7 +55,7 @@ namespace diff {
 	}*/
 	
 	// In-place trim of leading and trailing whitespace (' ' and '\t').
-	void trim(u8string& str) noexcept {
+	void trim(diff::u8string& str) noexcept {
 		const auto begin{ str.begin() };
 		const auto end{ str.end() };
 
@@ -92,7 +92,7 @@ namespace diff {
 		}
 	}
 	
-	void trim(string& str) noexcept {
+	void trim(diff::string& str) noexcept {
 		const auto begin{ str.begin() };
 		const auto end{ str.end() };
 
@@ -129,131 +129,6 @@ namespace diff {
 		}
 	}
 
-	bool valid_folder_name(wstring_view name) noexcept {
-		if (name.empty()) {
-			return false;
-		}
-		if (std::iswspace(name.front()) bitor std::iswspace(name.back())) {
-			return false;
-		}
-		/*
-			\ / : * ? " < > |
-		*/
-		for (const auto c : name) {
-			const bool back = (c == L'\\');
-			const bool fore = (c == L'/');
-			const bool colon = (c == L':');
-			const bool star = (c == L'*');
-			const bool qst = (c == L'?');
-			const bool quote = (c == L'\"');
-			const bool lt = (c == L'<');
-			const bool gt = (c == L'>');
-			const bool pipe = (c == L'|');
-			if (back bitor fore bitor colon bitor star bitor qst bitor quote bitor lt bitor gt bitor pipe bitor !std::iswprint(c)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	bool valid_directory(wstring_view dir) {
-		if (dir.length() < 4) {
-			return false; // <C:\a> is 4, <<\\a\b> is 5, so we need at least 4.
-		}
-
-		static auto valid_drive_letter = [] (const wchar_t c) {
-			switch (c) {
-			case L'A':
-			case L'B':
-			case L'C':
-			case L'D':
-			case L'E':
-			case L'F':
-			case L'G':
-			case L'H':
-			case L'I':
-			case L'J':
-			case L'K':
-			case L'L':
-			case L'M':
-			case L'N':
-			case L'O':
-			case L'P':
-			case L'Q':
-			case L'R':
-			case L'S':
-			case L'T':
-			case L'U':
-			case L'V':
-			case L'W':
-			case L'X':
-			case L'Y':
-			case L'Z':
-			case L'a':
-			case L'b':
-			case L'c':
-			case L'd':
-			case L'e':
-			case L'f':
-			case L'g':
-			case L'h':
-			case L'i':
-			case L'j':
-			case L'k':
-			case L'l':
-			case L'm':
-			case L'n':
-			case L'o':
-			case L'p':
-			case L'q':
-			case L'r':
-			case L's':
-			case L't':
-			case L'u':
-			case L'v':
-			case L'w':
-			case L'x':
-			case L'y':
-			case L'z':
-			{
-				return true;
-			}
-			default:
-			{
-				return false;
-			}
-			}
-		};
-
-		std::vector<wstring> folder_names{};
-
-		if (dir[0] == L'\\') { // UNC
-			if (dir[1] != L'\\') {
-				return false; // Must start with \\ .
-			}
-			folder_names = split<wstring>({ dir.begin() + 2, dir.end() }, L'\\');
-			if (folder_names.size() < 2) {
-				return false; // First after \\ is host name, so there must be at least one more thing after to be a valid dir.
-			}
-		}
-		else if (valid_drive_letter(dir[0])) {
-			if ((dir[1] != L':') bitor (dir[2] != L'\\')) {
-				return false;
-			}
-			folder_names = split<wstring>({ dir.begin() + 3, dir.end() }, L'\\');
-		}
-		else {
-			return false;
-		}
-
-		for (const auto& name : folder_names) {
-			if (!valid_folder_name(name)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
 
 	// Returns -1 on failure. Otherwise, it is safe to cast the return to u32.
 	i64 ul_parse(u8string_view str) noexcept {

@@ -1,7 +1,7 @@
 #pragma once
 #include "int_defs.h"
 #include "string_defs.h"
-#include <vector>
+#include "vector_defs.h"
 #include <optional>
 #include <filesystem>
 #include "lowercase_path.h"
@@ -33,13 +33,13 @@ namespace diff {
 		[[nodiscard]] bool ext_is_accepted(const lowercase_path& ext) const noexcept;
 		
 		
-		u8string dump() const;
+		diff::u8string dump() const;
 
 
 	private:
 		std::filesystem::path root{};
-		std::vector<lowercase_path> extensions{};
-		std::vector<lowercase_path> excluded_folders{}; // Relative to root.
+		diff::vector<lowercase_path> extensions{};
+		diff::vector<lowercase_path> excluded_folders{}; // Relative to root.
 		u32 min_depth{};
 		email_metadata email{};
 	};

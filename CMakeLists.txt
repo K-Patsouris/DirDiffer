@@ -26,6 +26,8 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/lowercase_path.cpp"
 	"${SOURCE_DIR}/lowercase_path.h"
 	"${SOURCE_DIR}/main.cpp"
+	"${SOURCE_DIR}/memory.cpp"
+	"${SOURCE_DIR}/memory.h"
 	"${SOURCE_DIR}/rng.h"
 	"${SOURCE_DIR}/sample_config.h"
 	"${SOURCE_DIR}/serialization.cpp"
@@ -35,6 +37,7 @@ set(SOURCE_FILES
 	"${SOURCE_DIR}/string_defs.h"
 	"${SOURCE_DIR}/string_utils.cpp"
 	"${SOURCE_DIR}/string_utils.h"
+	"${SOURCE_DIR}/vector_defs.h"
 	"${SOURCE_DIR}/winapi_funcs.cpp"
 	"${SOURCE_DIR}/winapi_funcs.h"
 )

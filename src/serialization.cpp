@@ -150,7 +150,7 @@ namespace diff {
 	static_assert(std::is_trivially_copyable_v<header>);
 
 
-	std::optional<dynamic_buffer> serialize_to_buffer(const smtp_info& smtp, const std::vector<file>& files, encryption encr_setting) noexcept {
+	std::optional<dynamic_buffer> serialize_to_buffer(const smtp_info& smtp, const diff::vector<file>& files, encryption encr_setting) noexcept {
 		
 		static_assert(sizeof(smtp_info) == (
 			sizeof(decltype(smtp_info::url)) +
@@ -185,7 +185,7 @@ namespace diff {
 
 		dynamic_buffer buf{};
 		
-		const u64 total_size{ [](const smtp_info& smtp, const std::vector<file>& files) {
+		const u64 total_size{ [](const smtp_info& smtp, const diff::vector<file>& files) {
 			auto string_needed_bytes = [](const auto& str) noexcept -> u64 {
 				return 8u + (str.length() * sizeof(std::remove_cvref_t<decltype(str)>::value_type)); // 8 for length, then just enough for each char.
 			};
@@ -250,10 +250,10 @@ namespace diff {
 		return buf;
 	}
 	
-	std::optional<dynamic_buffer> serialization::serialize_to_buffer_encrypted(const smtp_info& smtp, const std::vector<file>& files) noexcept {
+	std::optional<dynamic_buffer> serialization::serialize_to_buffer_encrypted(const smtp_info& smtp, const diff::vector<file>& files) noexcept {
 		return serialize_to_buffer(smtp, files, encryption::enabled);
 	}
-	std::optional<dynamic_buffer> serialization::serialize_to_buffer_unencrypted(const smtp_info& smtp, const std::vector<file>& files) noexcept {
+	std::optional<dynamic_buffer> serialization::serialize_to_buffer_unencrypted(const smtp_info& smtp, const diff::vector<file>& files) noexcept {
 		return serialize_to_buffer(smtp, files, encryption::disabled);
 	}
 	
@@ -331,10 +331,10 @@ namespace diff {
 		}
 		
 		for (u64 i = 0; i < file_count; ++i) {
-			wstring og_path{};
-			u8string parent{};
-			u8string filename{};
-			u8string owner{};
+			diff::wstring og_path{};
+			diff::u8string parent{};
+			diff::u8string filename{};
+			diff::u8string owner{};
 			u64 file_size{};
 			i64 last_write{};
 			if (buf.read(og_path) and

@@ -17,7 +17,7 @@ namespace diff {
 		explicit lowercase_path(const std::filesystem::path& any_path) : val{ any_path.u8string() } {
 			make_lowercase(val);
 		}
-		explicit lowercase_path(u8string&& any_path) noexcept : val{ any_path } {
+		explicit lowercase_path(diff::u8string&& any_path) noexcept : val{ any_path } {
 			make_lowercase(val);
 		}
 		
@@ -29,22 +29,22 @@ namespace diff {
 		}
 		
 		
-		[[nodiscard]] constexpr bool operator==(const u8string& rhs) const noexcept {
+		[[nodiscard]] constexpr bool operator==(const diff::u8string& rhs) const noexcept {
 			return this->val == rhs;
 		}
-		[[nodiscard]] constexpr auto operator<=>(const u8string& rhs) const noexcept {
+		[[nodiscard]] constexpr auto operator<=>(const diff::u8string& rhs) const noexcept {
 			return this->val <=> rhs;
 		}
 		
 		
-		[[nodiscard]] const u8string& str_cref() const noexcept { return val; }
+		[[nodiscard]] const diff::u8string& str_cref() const noexcept { return val; }
 		
 	private:
-		u8string val{};
+		diff::u8string val{};
 		
 		// Only accessible by serializer, for efficient deserialization.
 		struct already_lowercase_tag {};
-		explicit constexpr lowercase_path(already_lowercase_tag, u8string&& already_lowercase_path) noexcept : val{ std::move(already_lowercase_path) } {}
+		explicit constexpr lowercase_path(already_lowercase_tag, diff::u8string&& already_lowercase_path) noexcept : val{ std::move(already_lowercase_path) } {}
 		
 		friend class serialization;
 	};

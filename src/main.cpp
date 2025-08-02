@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "memory.h"
 #include "smtp.h"
 #include "file.h"
 #include "configuration.h"
@@ -15,29 +16,37 @@
 
 namespace diff {
 	
-	static constexpr string_view log_folder_name{ "logs" };
-	static constexpr string_view config_file_name{ "config.txt" };
-	static constexpr string_view data_file_name{ "data.bin" };
-	static constexpr string_view old_data_file_name{ "data.bin.old" };
-	static constexpr string_view new_data_file_name{ "data.bin.new" };
+	static constexpr std::string_view log_folder_name{ "logs" };
+	static constexpr std::string_view config_file_name{ "config.txt" };
+	static constexpr std::string_view data_file_name{ "data.bin" };
+	static constexpr std::string_view old_data_file_name{ "data.bin.old" };
+	static constexpr std::string_view new_data_file_name{ "data.bin.new" };
 	
 	void normal_routine(const std::filesystem::path& startup_path) {
 
 		const auto start_time{ std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()) };
-		
+
 		const std::filesystem::path config_path{ startup_path / config_file_name };
 		const std::filesystem::path savedata_path{ startup_path / data_file_name };
 		const std::filesystem::path old_savedata_path{ startup_path / old_data_file_name };
 		const std::filesystem::path logfile_path{ startup_path / log_folder_name / std::format("{:%Y-%m-%d_%UTC-%Hh-%Mm-%Ss_%a-%d-%B}.log"sv, start_time) };
+		//const std::filesystem::path logfile_path{ startup_path / log_folder_name / "aaaa.log" };
 		// e.g. "...\logs\2025-01-08_UTC-17h-02m-08s_Wed-08-January.log"
 		const std::filesystem::path reportfile_path{ startup_path / log_folder_name / std::format("{:%Y-%m-%d_%UTC-%Hh-%Mm-%Ss_%a-%d-%B}_report.txt"sv, start_time) };
+		//const std::filesystem::path reportfile_path{ startup_path / log_folder_name / "aaaa_report.txt"};
 		// e.g. "...\logs\2025-01-08_UTC-17h-02m-08s_Wed-08-January_report.txt"
 		
 		// Init logging.
-		if (not folder_create_or_exists(log_folder_name) or not log::init(logfile_path)) {
+		if (not folder_create_or_exists(log_folder_name)
+			or not log::init(logfile_path)) {
 			return;
 		}
-		log::info("Main: Program started and logging initialized.\r\n"sv);
+		if (not log::info("Main: Program started and logging initialized.\r\n"sv)) {
+			std::cout << "Normal routine failed to init logging.\n";
+		}
+		else {
+			std::cout << "Normal routine initialized logging.\n";
+		}
 		
 		
 		
@@ -88,7 +97,7 @@ namespace diff {
 
 
 		// Diff old and new files.
-		u8string report{};
+		diff::u8string report{};
 		{
 			auto opt{ diff_sorted_files(old_files, new_files) };
 			if (not opt.has_value()) {
@@ -171,7 +180,7 @@ namespace diff {
 		const std::filesystem::path savedata_path{ startup_path / data_file_name };
 		const std::filesystem::path old_savedata_path{ startup_path / old_data_file_name };
 		
-		std::vector<u8string> lines{ [](const std::filesystem::path& smtp_file_path) -> std::vector<u8string> {
+		diff::vector<diff::u8string> lines{ [](const std::filesystem::path& smtp_file_path) -> diff::vector<diff::u8string> {
 			const auto content{ read_from_file(smtp_file_path) };
 			if (not content.has_value()) {
 				std::cout << "Error:    Failed to read specified file <" << smtp_file_path.filename().string() << ">. Aborting without effect.\n\n";
@@ -202,7 +211,7 @@ namespace diff {
 		smtp.username = std::move(lines[1]);
 		smtp.password = std::move(lines[2]);
 		
-		std::vector<file> files{};
+		diff::vector<file> files{};
 
 		const auto savedata_exists = file_exists(savedata_path);
 
@@ -311,7 +320,7 @@ namespace diff {
 		std::cin >> choice;
 		cout << '\n';
 
-		if (choice == 'y' or choice == 'Y') {
+		if ((choice == 'y') or (choice == 'Y')) {
 			const std::filesystem::path config_path{ startup_path / config_file_name };
 			if (const auto exists_check = file_exists(config_path); not exists_check.has_value()) {
 				cout << "Failed to verify if \"config.txt\" already exists on disk. Generation aborted.\n";
@@ -326,7 +335,7 @@ namespace diff {
 				cout << "Sample \"config.txt\" written to disk.\n";
 			}
 		}
-		else if (choice == 'n' or choice == 'N') {
+		else if ((choice == 'n') or (choice == 'N')) {
 			cout << "No sample config generated.\n";
 		}
 		else {
@@ -372,6 +381,8 @@ namespace diff {
 		std::cout << "\n\nTest done.\n";
 	}//*/
 
+
+
 }
 
 
@@ -381,7 +392,7 @@ int __cdecl main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 	
 	std::locale::global(std::locale{ "en_US.UTF-8" });
 
-	std::cout << "Set locale to en_US.UTF-8. Starting test...\n";
+	std::cout << "Set locale to en_US.UTF-8. Starting program...\n";
 	
 	if (argc < 1) {
 		std::cout << "Too few arguments!\n\n";
@@ -397,7 +408,7 @@ int __cdecl main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 	//return 0;
 	
 	if (argc == 1) {
-		//std::cout << "Normal routine\n";
+		std::cout << "Normal routine\n";
 		diff::normal_routine(startup_path);
 	}
 	else {
@@ -405,21 +416,29 @@ int __cdecl main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
 			diff::show_help(startup_path);
 		}
 		else if (std::string{ "-set" } != argv[1]) {
-			//std::cout << "Unrecognized argument \"" << argv[1] << "\".\n";
+			std::cout << "Unrecognized argument \"" << argv[1] << "\".\n";
 			return 1;
 		}
 		else if (argc != 3) {
-			//std::cout << "Argument \"-set\" must be followed by the path to the file containing the smtp information.\n";
+			std::cout << "Argument \"-set\" must be followed by the path to the file containing the smtp information.\n";
 			return 1;
 		}
 		else {
-			//std::cout << "Setting routine\n";
+			std::cout << "Setting routine\n";
 			diff::set_smtp(startup_path, argv[2]);
 		}
 	}
 
 	//std::cout << "\n\n";
 	//system("pause");
+	std::cout << "Execution finished.";
+
+#ifdef DIRDIFFER_ALLOCATION_LOGGING
+
+	diff::diag::program_finished();
+
+#endif
+
 	return 0;
 	
 }

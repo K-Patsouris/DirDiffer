@@ -131,9 +131,9 @@ namespace diff {
 		
 		// Generate full email text, including RFC 5322 headers.
 		// Static string that we reset to new email contents each time, because I want the feeding function as a lambda, and it needs to be captureless to autoconvert to function pointer.
-		static u8string email_raw{};
+		static diff::u8string email_raw{};
 		
-		email_raw = [&]() -> u8string {
+		email_raw = [&]() -> diff::u8string {
 			std::size_t total_ascii_length = 100u; // Some space for header names, newlines, etc.
 			
 			total_ascii_length += metadata.from.length();
@@ -147,12 +147,12 @@ namespace diff {
 				}
 			}
 			
-			u8string date_string{};
+			diff::u8string date_string{};
 			
-			u8string full_email{};
+			diff::u8string full_email{};
 			try {
 				using namespace std::chrono;
-				string ascii_date = std::format("{:%a, %d %b %Y %H:%M:%S} +0000"sv, std::chrono::floor<seconds>(system_clock::now())); // floor() to discard seconds fractions.
+				std::string ascii_date = std::format("{:%a, %d %b %Y %H:%M:%S} +0000"sv, std::chrono::floor<seconds>(system_clock::now())); // floor() to discard seconds fractions.
 				date_string.resize(ascii_date.length());
 				std::memcpy(date_string.data(), ascii_date.c_str(), date_string.length());
 				full_email.reserve(total_ascii_length + date_string.length() + text.length() + 200);

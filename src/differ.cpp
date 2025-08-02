@@ -11,12 +11,12 @@ namespace diff {
 	
 		struct name_attrs {
 			
-			constexpr name_attrs(const u8string& stem) {
+			constexpr name_attrs(const std::u8string& stem) {
 				if (stem.empty()) {
 					return;
 				}
 				
-				std::vector<u8string> parts{ [](const u8string& stem) {
+				diff::vector<diff::u8string> parts{ [](const std::u8string& stem) {
 					/*
 					Atypical string split. Keeps the delimiter at the START of each part. Additionally, trims leading & trailing whitespace of each part after split is done.
 					Visually, imagine just breaking the string before each delim, without removing anything. Examples with delim '/':
@@ -27,21 +27,23 @@ namespace diff {
 					*/
 					
 					if (stem.empty()) {
-						return std::vector<u8string>{};
+						return diff::vector<u8string>{};
 					}
 
-					std::vector<u8string> ret{};
+					diff::vector<diff::u8string> ret{};
 
 					size_t start = 0;
 
 					for (std::size_t i = 0; i < stem.length(); ++i) {
 						if (stem[i] == u8'#') {
-							ret.emplace_back(stem.substr(start, i - start));
+							// ret.emplace_back(stem.substr(start, i - start));
+							ret.emplace_back(stem.data() + start, i - start);
 							start = i;
 						}
 					}
 
-					ret.emplace_back(stem.substr(start));
+					// ret.emplace_back(stem.substr(start));
+					ret.emplace_back(stem.data() + start, stem.length() - start);
 					
 					for (auto& part : ret) {
 						trim(part); // Trim leading and trailing whitespace.
@@ -67,14 +69,16 @@ namespace diff {
 							continue;
 						}
 						
-						u8string tag{ part.substr(1, eq_idx - 1) }; // Take from after the '#' to before the '=', e.g. part: "# C = zxc fgh" => tag: " C ". -1 is safe because [0] is '#'.
+						// u8string tag{ part.substr(1, eq_idx - 1) }; // Take from after the '#' to before the '=', e.g. part: "# C = zxc fgh" => tag: " C ". -1 is safe because [0] is '#'.
+						diff::u8string tag( part.data() + 1, eq_idx - 1 );
 						trim(tag);									// The arithmetic with indices above is also safe because both '#' and '=' are ascii characters and take 1 byte in utf-8 too.
 						
 						if (tag.length() != 1) {
 							continue; // Tags are expected to be single characters.
 						}
 						
-						u8string val{ part.substr(eq_idx + 1) }; // +1 is safe because it will yield at most .length(), which is valid as substr() argument (returns empty string).
+						// u8string val{ part.substr(eq_idx + 1) }; // +1 is safe because it will yield at most .length(), which is valid as substr() argument (returns empty string).
+						diff::u8string val( part.data() + eq_idx + 1, part.length() - (eq_idx + 1));
 						trim(val);
 						
 						if ((tag[0] == u8'V') bitor (tag[0] == u8'v')) {
@@ -90,10 +94,10 @@ namespace diff {
 				}
 			}
 			
-			u8string type{ u8"N/A" };
-			u8string variant{ u8"N/A" };
-			u8string version{ u8"N/A" };
-			u8string catalog{ u8"N/A" };
+			diff::u8string type{ u8"N/A" };
+			diff::u8string variant{ u8"N/A" };
+			diff::u8string version{ u8"N/A" };
+			diff::u8string catalog{ u8"N/A" };
 		};
 		
 	public:
@@ -129,8 +133,8 @@ namespace diff {
 				
 				auto parents{ split(u8ogparent, u8'\\') };
 				
-				const u8string standard{ (parents.size() > 0) ? std::move(parents[0]) : u8"N/A"s };
-				const u8string family{ (parents.size() > 1) ? std::move(parents[1]) : u8"N/A"s };
+				const diff::u8string standard{ (parents.size() > 0) ? std::move(parents[0]) : diff::u8string{ u8"N/A" } };
+				const diff::u8string family{ (parents.size() > 1) ? std::move(parents[1]) : diff::u8string{ u8"N/A" } };
 				
 				name_attrs attrs{ f.original_path.stem().u8string() };
 				
@@ -151,7 +155,7 @@ namespace diff {
 			}
 		}
 		
-		u8string str{};
+		diff::u8string str{};
 		lowercase_path last_parent{};
 	};
 	
@@ -230,7 +234,7 @@ namespace diff {
 			
 		}
 		
-		u8string report{};
+		diff::u8string report{};
 		
 		try {
 			report.reserve(created.length() + deleted.length() + 100); // An extra 100 characters for headings and newlines and stuff. We need about 40. Cba doing precise calcs.

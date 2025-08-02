@@ -1,17 +1,17 @@
 #pragma once
 #include "logger.h"
 #include "string_defs.h"
+#include "vector_defs.h"
 #include "file.h"
 #include "configuration.h"
 #include "dynamic_buffer.h"
 #include <filesystem>
 #include <optional>
-#include <vector>
 
 
 namespace diff {
 	
-	[[nodiscard]] std::optional<u8string> read_from_file(const std::filesystem::path& file_path) noexcept;
+	[[nodiscard]] std::optional<diff::u8string> read_from_file(const std::filesystem::path& file_path) noexcept;
 	
 	[[nodiscard]] bool write_to_file(const std::filesystem::path& file_path, string_view data) noexcept;
 	[[nodiscard]] bool write_to_file(const std::filesystem::path& file_path, u8string_view data) noexcept;
@@ -25,7 +25,7 @@ namespace diff {
 	[[nodiscard]] std::optional<configuration> get_configuration(const std::filesystem::path& file_path) noexcept;
 
 	
-	[[nodiscard]] std::optional<std::vector<file>> get_files_recursive(const configuration& filter) noexcept;
+	[[nodiscard]] std::optional<diff::vector<file>> get_files_recursive(const configuration& filter) noexcept;
 	
 	
 	[[nodiscard]] std::optional<bool> file_exists(const std::filesystem::path& file_path) noexcept;
